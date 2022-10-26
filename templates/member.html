@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/style.css') }}"
+    />
+    <title>會員頁面</title>
+  </head>
+  <body>
+    <div class="header">歡迎光臨，這是會員頁</div>
+    <h2>你好! {{ name }} 很高興見到你~</h2>
+    <br /><br />
+    <div><a href="/signout">登出</a></div>
+    <br /><br /><br /><br /><br />
+    <h2>快來留言吧!!</h2>
+    <form action="message" method="POST">
+      內容 <input type="text" name="content" required />
+      <button>送出</button>
+    </form>
+    {% for i in range( length ) %}
+    <div class="content">
+      <p>{{ messages[i][0] }} : {{ messages[i][1] }}</p>
+    </div>
+    {%endfor%}
+  </body>
+</html>
