@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles/style.css') }}"
@@ -10,7 +10,7 @@
     <title>會員系統</title>
   </head>
   <body>
-    <div class="header">歡迎光臨請註冊或登入網站</div>
+    <div class="header">歡迎光臨請註冊或登入網站{{ result }}</div>
     <h3>會員登入</h3>
     <form action="/signin" method="POST">
       <br/ > 信箱

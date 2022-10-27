@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles/style.css') }}"
@@ -12,9 +12,9 @@
   <body>
     <div class="header">歡迎光臨，這是會員頁</div>
     <h2>你好! {{ name }} 很高興見到你~</h2>
-    <br /><br />
+    <br />
     <div><a href="/signout">登出</a></div>
-    <br /><br /><br /><br /><br />
+    <br />
     <h2>快來留言吧!!</h2>
     <form action="message" method="POST">
       內容 <input type="text" name="content" required />

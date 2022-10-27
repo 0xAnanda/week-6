@@ -48,8 +48,8 @@ def member():
 
     if "email" in session:
         name=session['name']
-        sql_message= " SELECT member_name, content FROM messages"
-        cursor = connection.cursor()
+        sql_message= " SELECT name, content FROM members INNER JOIN messages ON members.id = messages.members_id"
+        cursor = connection.cursor(buffered=True)
         cursor.execute(sql_message)
         messages= cursor.fetchall()
         cursor.close()
@@ -75,7 +75,7 @@ def signUp():
     password= request.form["password"]
     # 根據接受到的資料，和資料庫互動
     sql_email="SELECT email FROM members WHERE email = %s "           #'"+ email +"'
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
     cursor.execute(sql_email, [email])
     data= cursor.fetchone()
     # 檢查是否有相同email的文件資料
@@ -87,7 +87,7 @@ def signUp():
     # 把資料放進資料庫，完成註冊
     sql_insert= "INSERT INTO members(name, email, password)" " VALUES (%s, %s, %s)"                # ('"+name+"', '"+email+"', '"+password+"') 
     datas= [name, email, password]
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
     cursor.execute(sql_insert, datas)
     connection.commit()
     print("{}已註冊成功".format(name))
@@ -104,7 +104,7 @@ def signin():
     # 和資料庫做互動
     # 先確定有沒有帳號
     sql_email= "SELECT email FROM members WHERE email = %s "       # '"+ email +"' 
-    cursor= connection.cursor()
+    cursor= connection.cursor(buffered=True)
     cursor.execute(sql_email, [email])
     confirmEmail= cursor.fetchone()
     if confirmEmail == None:
@@ -114,7 +114,7 @@ def signin():
     # 搜尋帳號密碼是否in DB
     account= "SELECT name, email , password FROM members WHERE  email = %s AND password= %s "           # '"+ email +"' AND password= '"+ password +"' "
     datas= [email, password]
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
     cursor.execute(account, datas)
     result= cursor.fetchone()
 
@@ -140,10 +140,15 @@ def signout():
 @app.route("/message", methods=['POST'])
 def message():
     name= session["name"]
+    sql_name="SELECT id FROM members WHERE name = %s "
+    cursor = connection.cursor(buffered=True)
+    cursor.execute(sql_name, [name])
+    member_ids= cursor.fetchone()
+    member_id = member_ids[0]
     content= request.form["content"]
-    insert_message= " INSERT INTO messages (member_name, content) VALUES(%s, %s) "          # ('"+ name + "' , '"+ content + "') "
-    datas= [name, content]
-    cursor = connection.cursor()
+    insert_message= " INSERT INTO messages (members_id, content) VALUES(%s, %s) "          # ('"+ name + "' , '"+ content + "') "
+    datas= [member_id, content]
+    # cursor = connection.cursor()
     cursor.execute(insert_message, datas)
     connection.commit()
     cursor.close()
