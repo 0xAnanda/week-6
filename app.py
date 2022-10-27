@@ -3,12 +3,20 @@ from re import L
 import mysql.connector
 from mysql.connector import errorcode
 from password import MySQLpassword
+
+dbconfig= {
+    "database": "weHelp",
+    "user": "root"
+}
 connection = mysql.connector.connect(
-                        user='root',
+                        # database='weHelp',
+                        # host='localhost',
+                        # port='3306',
+                        # user='root',
                         password=MySQLpassword(),
-                        port='3306',
-                        database='weHelp',
-                        host='localhost'
+                        pool_name = "mypool",       #
+                        pool_size = 3,              #
+                        **dbconfig                  #
                         )
 print("成功連線MySQL")
 # cursor = connection.cursor()
@@ -66,9 +74,9 @@ def signUp():
     email=request.form["email"]
     password= request.form["password"]
     # 根據接受到的資料，和資料庫互動
-    sql_email="SELECT email FROM members WHERE email = '"+ email +"'"
+    sql_email="SELECT email FROM members WHERE email = %s "           #'"+ email +"'
     cursor = connection.cursor()
-    cursor.execute(sql_email)
+    cursor.execute(sql_email, [email])
     data= cursor.fetchone()
     # 檢查是否有相同email的文件資料
     if not data == None:
@@ -77,15 +85,16 @@ def signUp():
     cursor.close()
 
     # 把資料放進資料庫，完成註冊
-    sql_insert= "INSERT INTO members(name, email, password) VALUES('"+name+"', '"+email+"', '"+password+"') "
+    sql_insert= "INSERT INTO members(name, email, password)" " VALUES (%s, %s, %s)"                # ('"+name+"', '"+email+"', '"+password+"') 
+    datas= [name, email, password]
     cursor = connection.cursor()
-    cursor.execute(sql_insert)
+    cursor.execute(sql_insert, datas)
     connection.commit()
     print("{}已註冊成功".format(name))
     cursor.close()
     return redirect("/")
 #------------------------------
-# 登入
+# 登入 
 @app.route("/signin", methods=['POST'])
 def signin():
     # 從前端取得使用者輸入
@@ -94,18 +103,19 @@ def signin():
        
     # 和資料庫做互動
     # 先確定有沒有帳號
-    sql_email= "SELECT email FROM members WHERE email =  '"+ email +"' "
+    sql_email= "SELECT email FROM members WHERE email = %s "       # '"+ email +"' 
     cursor= connection.cursor()
-    cursor.execute(sql_email)
+    cursor.execute(sql_email, [email])
     confirmEmail= cursor.fetchone()
     if confirmEmail == None:
         return redirect("/error?msg=帳號不存在")
     cursor.close()
 
     # 搜尋帳號密碼是否in DB
-    account= "SELECT name, email , password FROM members WHERE  email = '"+ email +"' AND password= '"+ password +"' "
+    account= "SELECT name, email , password FROM members WHERE  email = %s AND password= %s "           # '"+ email +"' AND password= '"+ password +"' "
+    datas= [email, password]
     cursor = connection.cursor()
-    cursor.execute(account)
+    cursor.execute(account, datas)
     result= cursor.fetchone()
 
     # 找不到相應的資料，登入失敗，導向到錯誤頁面
@@ -131,9 +141,10 @@ def signout():
 def message():
     name= session["name"]
     content= request.form["content"]
-    insert_message= " INSERT INTO messages (member_name, content) VALUES('"+ name + "' , '"+ content + "') "
+    insert_message= " INSERT INTO messages (member_name, content) VALUES(%s, %s) "          # ('"+ name + "' , '"+ content + "') "
+    datas= [name, content]
     cursor = connection.cursor()
-    cursor.execute(insert_message)
+    cursor.execute(insert_message, datas)
     connection.commit()
     cursor.close()
     return redirect(url_for('member'))
